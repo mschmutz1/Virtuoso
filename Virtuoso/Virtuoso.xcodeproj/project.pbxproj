@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C73A56E11DBF1813002EDBA7 /* findfaces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C73A56DF1DBF1813002EDBA7 /* findfaces.cpp */; };
+		C73A56E11DBF1813002EDBA7 /* DetectAndDrawFaces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C73A56DF1DBF1813002EDBA7 /* DetectAndDrawFaces.cpp */; };
 		C75327EA1DB1AB370021FC4E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C75327E91DB1AB370021FC4E /* main.cpp */; };
 		C75327F11DB1AE590021FC4E /* libopencv_core.2.4.13.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C75327F01DB1AE590021FC4E /* libopencv_core.2.4.13.dylib */; };
 		C75327F31DB1AE7A0021FC4E /* libopencv_objdetect.2.4.13.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C75327F21DB1AE7A0021FC4E /* libopencv_objdetect.2.4.13.dylib */; };
@@ -28,8 +28,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		C73A56DF1DBF1813002EDBA7 /* findfaces.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = findfaces.cpp; sourceTree = "<group>"; };
-		C73A56E01DBF1813002EDBA7 /* findfaces.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = findfaces.hpp; sourceTree = "<group>"; };
+		C7002AC21DCD07A20036B12C /* global.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = global.h; sourceTree = "<group>"; };
+		C73A56DF1DBF1813002EDBA7 /* DetectAndDrawFaces.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DetectAndDrawFaces.cpp; sourceTree = "<group>"; };
+		C73A56E01DBF1813002EDBA7 /* DetectAndDrawFaces.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DetectAndDrawFaces.hpp; sourceTree = "<group>"; };
 		C75327E61DB1AB370021FC4E /* Virtuoso */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Virtuoso; sourceTree = BUILT_PRODUCTS_DIR; };
 		C75327E91DB1AB370021FC4E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		C75327F01DB1AE590021FC4E /* libopencv_core.2.4.13.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_core.2.4.13.dylib; path = "../opencv-2.4.13/build/lib/libopencv_core.2.4.13.dylib"; sourceTree = "<group>"; };
@@ -77,8 +78,9 @@
 			isa = PBXGroup;
 			children = (
 				C75327E91DB1AB370021FC4E /* main.cpp */,
-				C73A56DF1DBF1813002EDBA7 /* findfaces.cpp */,
-				C73A56E01DBF1813002EDBA7 /* findfaces.hpp */,
+				C7002AC21DCD07A20036B12C /* global.h */,
+				C73A56DF1DBF1813002EDBA7 /* DetectAndDrawFaces.cpp */,
+				C73A56E01DBF1813002EDBA7 /* DetectAndDrawFaces.hpp */,
 			);
 			path = Virtuoso;
 			sourceTree = "<group>";
@@ -140,7 +142,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C75327EA1DB1AB370021FC4E /* main.cpp in Sources */,
-				C73A56E11DBF1813002EDBA7 /* findfaces.cpp in Sources */,
+				C73A56E11DBF1813002EDBA7 /* DetectAndDrawFaces.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
