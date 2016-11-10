@@ -234,7 +234,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = /usr/local/lib;
 				HEADER_SEARCH_PATHS = /usr/local/include;
-				LIBRARY_SEARCH_PATHS = "/Users/mathias/Desktop/EECS332/Instruments/opencv-2.4.13/build/lib";
+				LIBRARY_SEARCH_PATHS = "\"/Users/lindsay/Desktop/eecs 332/FinalProject/Virtuoso/opencv-2.4.13/build/lib\"";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -245,7 +245,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = /usr/local/lib;
 				HEADER_SEARCH_PATHS = /usr/local/include;
-				LIBRARY_SEARCH_PATHS = "/Users/mathias/Desktop/EECS332/Instruments/opencv-2.4.13/build/lib";
+				LIBRARY_SEARCH_PATHS = "\"/Users/lindsay/Desktop/eecs 332/FinalProject/Virtuoso/opencv-2.4.13/build/lib\"";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

@@ -31,7 +31,7 @@ int main(){
     cap.set(CV_CAP_PROP_FRAME_HEIGHT,360);
     
      //load classifier to look for faces
-    const string face_cascade_name = "/Users/mathias/Desktop/EECS332/Instruments/opencv-2.4.13/data/haarcascades/haarcascade_frontalface_alt.xml";
+    const string face_cascade_name = "/Users/lindsay/Desktop/eecs 332/FinalProject/Virtuoso/opencv-2.4.13/data/haarcascades/haarcascade_fist_front.xml";
     CascadeClassifier face_cascade;
     face_cascade.load(face_cascade_name);
     
