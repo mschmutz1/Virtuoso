@@ -22,6 +22,8 @@ vector<Rect> DetectAndDrawFaces(Mat* frame, CascadeClassifier* face_cascade, boo
     // Detect faces
     face_cascade->detectMultiScale(frame_gray, faces, 1.1, 3, 0 | CASCADE_SCALE_IMAGE, Size(70,70));
     
+    //cout << faces[0].x << " " << faces[0].y << " " << faces[0].width << " " << faces[0].height << " " << endl;
+    
     if (faces.size() == 0)
     {
         putText(*frame, "No face detected", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 255), 1, CV_AA);

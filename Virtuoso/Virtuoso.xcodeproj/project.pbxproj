@@ -13,6 +13,7 @@
 		C75327F31DB1AE7A0021FC4E /* libopencv_objdetect.2.4.13.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C75327F21DB1AE7A0021FC4E /* libopencv_objdetect.2.4.13.dylib */; };
 		C75327F51DB1AE940021FC4E /* libopencv_imgproc.2.4.13.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C75327F41DB1AE940021FC4E /* libopencv_imgproc.2.4.13.dylib */; };
 		C75327F71DB1B06A0021FC4E /* libopencv_highgui.2.4.13.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C75327F61DB1B06A0021FC4E /* libopencv_highgui.2.4.13.dylib */; };
+		C7C7C98D1DD97A9400F290EE /* histogram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C7C7C98B1DD97A9400F290EE /* histogram.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,6 +38,8 @@
 		C75327F21DB1AE7A0021FC4E /* libopencv_objdetect.2.4.13.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_objdetect.2.4.13.dylib; path = "../opencv-2.4.13/build/lib/libopencv_objdetect.2.4.13.dylib"; sourceTree = "<group>"; };
 		C75327F41DB1AE940021FC4E /* libopencv_imgproc.2.4.13.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgproc.2.4.13.dylib; path = "../opencv-2.4.13/build/lib/libopencv_imgproc.2.4.13.dylib"; sourceTree = "<group>"; };
 		C75327F61DB1B06A0021FC4E /* libopencv_highgui.2.4.13.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_highgui.2.4.13.dylib; path = "../opencv-2.4.13/build/lib/libopencv_highgui.2.4.13.dylib"; sourceTree = "<group>"; };
+		C7C7C98B1DD97A9400F290EE /* histogram.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = histogram.cpp; sourceTree = "<group>"; };
+		C7C7C98C1DD97A9400F290EE /* histogram.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = histogram.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +81,8 @@
 			isa = PBXGroup;
 			children = (
 				C75327E91DB1AB370021FC4E /* main.cpp */,
+				C7C7C98B1DD97A9400F290EE /* histogram.cpp */,
+				C7C7C98C1DD97A9400F290EE /* histogram.hpp */,
 				C7002AC21DCD07A20036B12C /* global.h */,
 				C73A56DF1DBF1813002EDBA7 /* DetectAndDrawFaces.cpp */,
 				C73A56E01DBF1813002EDBA7 /* DetectAndDrawFaces.hpp */,
@@ -142,6 +147,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C75327EA1DB1AB370021FC4E /* main.cpp in Sources */,
+				C7C7C98D1DD97A9400F290EE /* histogram.cpp in Sources */,
 				C73A56E11DBF1813002EDBA7 /* DetectAndDrawFaces.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -234,7 +240,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = /usr/local/lib;
 				HEADER_SEARCH_PATHS = /usr/local/include;
-				LIBRARY_SEARCH_PATHS = "\"/Users/lindsay/Desktop/eecs 332/FinalProject/Virtuoso/opencv-2.4.13/build/lib\"";
+				LIBRARY_SEARCH_PATHS = "\"/Users/mathias/Desktop/EECS332/Instruments/opencv-2.4.13/build/lib\"";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -245,7 +251,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = /usr/local/lib;
 				HEADER_SEARCH_PATHS = /usr/local/include;
-				LIBRARY_SEARCH_PATHS = "\"/Users/lindsay/Desktop/eecs 332/FinalProject/Virtuoso/opencv-2.4.13/build/lib\"";
+				LIBRARY_SEARCH_PATHS = "\"/Users/mathias/Desktop/EECS332/Instruments/opencv-2.4.13/build/lib\"";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

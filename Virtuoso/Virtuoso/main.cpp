@@ -6,10 +6,9 @@
 //  Copyright © 2016 self.edu. All rights reserved.
 //
 
-#include <iostream>
-#include "stdio.h"
 #include "global.h"
 #include "DetectAndDrawFaces.hpp"
+#include "histogram.hpp"
 
 using namespace cv;
 using namespace std;
@@ -17,6 +16,9 @@ using namespace std;
 int main(){
     //set up display window
     const string WinName ="Virtuoso";
+    const string WinName2 = "Skin";
+    const string WinName3 = "Edges";
+    
     //set up timer for measuring frame rate
     clock_t start;
     double duration;
@@ -24,16 +26,21 @@ int main(){
 
     //set up video
     VideoCapture cap(0);
-    Mat image, gray, thresholdedImage;
-    
+    Mat image, hsv_image, cropped_face, skin_image, skin_edges;
+    MatND hist;
     //set camera resolution
     cap.set(CV_CAP_PROP_FRAME_WIDTH,480);
     cap.set(CV_CAP_PROP_FRAME_HEIGHT,360);
     
      //load classifier to look for faces
-    const string face_cascade_name = "/Users/lindsay/Desktop/eecs 332/FinalProject/Virtuoso/opencv-2.4.13/data/haarcascades/haarcascade_fist_front.xml";
+    const string face_cascade_name = "/Users/mathias/Desktop/EECS332/Instruments/opencv-2.4.13/data/haarcascades/haarcascade_frontalface_alt.xml";
+    
     CascadeClassifier face_cascade;
     face_cascade.load(face_cascade_name);
+    
+    Mat element = getStructuringElement(MORPH_RECT, Size(5, 5));
+    int lowThreshold = 100;
+    int ratio = 3;
     
     if (!cap.isOpened())
     {
@@ -41,7 +48,12 @@ int main(){
     }
         
     int frames_processed = 0;
+    
+    //Create Windows
     namedWindow(WinName,1);
+    namedWindow(WinName2,1);
+    namedWindow(WinName3,1);
+    
     vector<Rect> faces;
     bool frame_read;
 
@@ -51,15 +63,41 @@ int main(){
     while(true){
         
         frame_read = cap.read(image); //assigns mat image to raw webcam footage
+        flip(image,image,1);
+        
+        cvtColor(image, skin_image, CV_RGB2GRAY);
         
         if (!frame_read){
             cout << "Frame can't be read" << endl;
             break;
         }
-
+        
         faces = DetectAndDrawFaces(&image,&face_cascade,true);
+        cvtColor(image, hsv_image, CV_BGR2HSV);
+        if (faces.size() == 1){
+            int x = faces[0].x;
+            int y = faces[0].y;
+            int width = faces[0].width;
+            int height = faces[0].height;
+            
+            //cout << "num pixels: " << width*height << endl;
+            
+            Rect small_face(x+width/4,y+height/4,width/2,height/2);
+            cropped_face = hsv_image(small_face);
+            hist = CreateHistHS(&cropped_face);
+            hist_threshold(&hsv_image, &skin_image, hist);
+            Mat skin_face = skin_image(faces[0]);
+            skin_face.setTo(Scalar(0,0,0));
+        }
+        
+        dilate(skin_image,skin_image,element);
+        erode(skin_image,skin_image,element);
+        blur(skin_image,skin_image, Size(3,3));
+        Canny(skin_image, skin_edges, lowThreshold, lowThreshold*ratio, 3);
         
         imshow(WinName,image);
+        imshow(WinName2,skin_image);
+        imshow(WinName3,skin_edges);
         
         if (waitKey(10)>0){
             break;
@@ -71,6 +109,7 @@ int main(){
     cout << "frames per second " << frames_processed/duration << endl;
     return 0;
 }
+
 
 //Thresholding code
 

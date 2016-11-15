@@ -8,9 +8,12 @@
 
 #ifndef Global_h
 #define Global_h
+#include <iostream>
+#include "stdio.h"
 #include "opencv2/imgproc.hpp"
 #include "opencv2/core.hpp"
 #include "opencv2/objdetect.hpp"
-#include "opencv2/highgui.hpp"
+#include "opencv2/highgui.hpp"      
+
 
 #endif /* Global_h */
