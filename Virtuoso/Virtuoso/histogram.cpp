@@ -13,7 +13,7 @@ using namespace cv;
 using namespace std;
 
 int maxB, maxG;
-void hist_threshold(Mat* src_image, Mat* dest_image, MatND hist)
+void hist_threshold(Mat* src_image, Mat* dest_image, MatND hist,double percentageOfMax)
 {
     Mat tmp_image;
     
@@ -35,8 +35,8 @@ void hist_threshold(Mat* src_image, Mat* dest_image, MatND hist)
             
             {
                 float binVal = hist.at<float>(B_index,G_index);
-
-                if (binVal > .25*maxVal)
+                 
+                if (binVal > percentageOfMax*maxVal)
                 {
                     dest_image->at<uchar>(i,j) = 255;
                     

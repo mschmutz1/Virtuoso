@@ -16,6 +16,6 @@ using namespace std;
 
 MatND CreateHistHS(Mat* imag);
 
-void hist_threshold(Mat* src_image, Mat* dest_image, MatND hist);
+void hist_threshold(Mat* src_image, Mat* dest_image, MatND hist,double percentageOfMax);
 
 #endif /* histogram_hpp */

@@ -11,6 +11,25 @@
 using namespace std;
 using namespace cv;
 
+extern CascadeClassifier face_cascade;
+
+bool Calibrate_Hand(Mat& image,Rect box){
+    bool hand_found = false;
+    Mat frame = image(box);
+    
+    putText(image, "Calibrating", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 255), 1, CV_AA);
+    
+    vector<Rect> left_hand = DetectAndDrawFaces(&frame,&face_cascade,true);
+    
+    if (left_hand.size() == 1)
+    {
+        cout << "HAND FOUND" << endl;
+        hand_found = true;
+        
+    }
+    return hand_found;
+}
+
 /* See DetectAndDrawFaces.hpp for information*/
 vector<Rect> DetectAndDrawFaces(Mat* frame, CascadeClassifier* face_cascade, bool draw)
 {
@@ -54,5 +73,5 @@ void DrawShape(Mat* frame,Rect object)
     width = object.width;
     height = object.height;
     rectangle(*frame, Point(x,y), Point(x+width,y+height), Scalar(0, 255, 0), 2, 8, 0);
-    circle(*frame,Point(x+width/2,y+height/2),(width+height)/4,Scalar(0, 255, 0), 2, 8, 0);
+    //circle(*frame,Point(x+width/2,y+height/2),(width+height)/4,Scalar(0, 255, 0), 2, 8, 0);
 }
