@@ -14,6 +14,8 @@
 using namespace cv;
 using namespace std;
 
+MatND Add_To_Hist(Mat frame,MatND hist);
+
 MatND CreateHistHS(Mat* imag);
 
 void hist_threshold(Mat* src_image, Mat* dest_image, MatND hist,double percentageOfMax);

@@ -67,11 +67,12 @@ vector<Rect> DetectAndDrawFaces(Mat* frame, CascadeClassifier* face_cascade, boo
 
 void DrawShape(Mat* frame,Rect object)
 {
-    int x,y,width,height;
+    int x,y,width,height,radius;
     x = object.x;
     y = object.y;
     width = object.width;
     height = object.height;
+    radius = width/2 * sqrt(2);
     rectangle(*frame, Point(x,y), Point(x+width,y+height), Scalar(0, 255, 0), 2, 8, 0);
-    //circle(*frame,Point(x+width/2,y+height/2),(width+height)/4,Scalar(0, 255, 0), 2, 8, 0);
+    circle(*frame,Point(x+width/2,y+height/2),radius,Scalar(0, 255, 0), 2, 8, 0);
 }

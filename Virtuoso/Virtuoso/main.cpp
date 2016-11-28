@@ -16,11 +16,19 @@ using namespace std;
 
 CascadeClassifier face_cascade;
 
+int xmax = 179;
+int ymax = 255;
+int values_per_bins = 4;
+int channels[2] = {0,1};
+bool HSV = true;
+int num_calibrating_frames = 10;
+
 int main(){
     //set up display window
     const string WinName ="Virtuoso";
-    const string WinName2 = "Skin";
-    const string WinName3 = "Edges";
+    const string WinName2 = "Left Stick";
+    const string WinName3 = "Right Stick";
+    const string WinName4 = "In range";
     
     //set up timer for measuring frame rate
     clock_t start;
@@ -29,16 +37,18 @@ int main(){
 
     //set up video
     VideoCapture cap(0);
-    Mat image, hsv_image, hsv_left,hsv_right,cropped_face, skin_image, skin_left, skin_right, sobel;
-    MatND total_hist;
-    total_hist = Mat::zeros(45, 64, CV_32FC1);
+    Mat RGB_image, hsv_image, bin_image_right, bin_image_left,hsv_left,hsv_right,left_stick,right_stick,image, skin;
+    MatND total_hist_right,total_hist_left;
+    total_hist_right = Mat::zeros(xmax/values_per_bins, ymax/values_per_bins, CV_32FC1);
+    total_hist_left = Mat::zeros(xmax/values_per_bins, ymax/values_per_bins, CV_32FC1);
     
     //For testing
     Mat hand_frames[5];
     
-    
     MatND curr_hist;
-    double percentageOfMax = .6;
+    double percentageOfMax = .7;
+    Point maxloc_left;
+    Point maxloc_right;
     
     //set camera resolution
     cap.set(CV_CAP_PROP_FRAME_WIDTH,480);
@@ -49,11 +59,12 @@ int main(){
     
     face_cascade.load(face_cascade_name);
     
-    Mat erode_element = getStructuringElement(MORPH_RECT, Size(5, 5));
-    Mat dilate_element = getStructuringElement(MORPH_RECT, Size(7, 7));
+    Mat erode_element = getStructuringElement(MORPH_RECT, Size(2, 2));
+    Mat dilate_element = getStructuringElement(MORPH_RECT, Size(10, 10));
     int lowThreshold = 10;
     int ratio = 3;
     int random_points = 40;
+    int key = 0;
     
     if (!cap.isOpened())
     {
@@ -61,14 +72,15 @@ int main(){
     }
         
     int frames_processed = 0;
-    int left_hand_frames= 0;
+    int calibration_frames_left= 0;
+    int calibration_frames_right = 0;
     
     
     //Create Windows
     namedWindow(WinName,1);
     namedWindow(WinName2,1);
-    //namedWindow(WinName3,1);
-    //namedWindow("sobel",1);
+    namedWindow(WinName3,1);
+    namedWindow(WinName4,1);
     
     vector<Rect> left_hand;
     vector<Rect> right_hand;
@@ -77,8 +89,8 @@ int main(){
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
     
-    const int BOX_WIDTH = 140;
-    const int BOX_HEIGHT = 180;
+    const int BOX_WIDTH = 45;
+    const int BOX_HEIGHT = 45;
     const int BOX_Y = 240;
     const int BOX_X = 120;
 
@@ -89,60 +101,120 @@ int main(){
     //main loop, processes each frame
     while(true){
         
-        frame_read = cap.read(image); //assigns mat image to raw webcam footage
-        flip(image,image,1);
+        frame_read = cap.read(RGB_image); //assigns mat image to raw webcam footage
         
-        skin_image = Mat::zeros(360,480,CV_8UC1);
-        cvtColor(image, hsv_image, CV_BGR2HSV);
-        skin_left = skin_image(left_box);
-        skin_right = skin_image(right_box);
         if (!frame_read){
             cout << "Frame can't be read" << endl;
             break;
         }
         
-    
-        hsv_image.convertTo(hsv_image, CV_32FC1);
-        Point3_<float>* p = hsv_image.ptr<Point3_<float>>(10,10);
-        cout << (int)p->x << " " << (int)p->y << endl;
-
-        //Draw hand boxes
-        DrawShape(&image,right_box);
-        DrawShape(&image,left_box);
+        flip(RGB_image,RGB_image,1);
+        bin_image_right = Mat::zeros(360,480,CV_8UC1);
+        bin_image_left = Mat::zeros(360,480,CV_8UC1);
+        cvtColor(RGB_image, hsv_image, CV_BGR2HSV);
+       
+        hsv_left = hsv_image(left_box);
+        hsv_right =  hsv_image(right_box);
         
-        //
-        if (left_hand_frames < 5)
+        //blur(hsv_image,hsv_image,Point(5,5));
+        hsv_image.convertTo(hsv_image, CV_32FC1);
+        
+        
+        if (HSV == true)
         {
-            bool left_hand_found = Calibrate_Hand(image,left_box);
-            
-            if (left_hand_found)
-            {
-                left_hand_frames++;
-                cropped_face = hsv_image(left_box);
-                curr_hist = CreateHistHS(&cropped_face);
-                total_hist = total_hist + curr_hist;
-            }
-                
+            image = hsv_image;
         }
         else
         {
-            putText(image, "Press 'R' to Re-Calibrate", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 255), 1, CV_AA);
-            hsv_left = hsv_image(left_box);
-            hsv_right =  hsv_image(right_box);
-            hist_threshold(&hsv_left, &skin_left, total_hist, percentageOfMax);
-            hist_threshold(&hsv_right, &skin_right, total_hist, percentageOfMax);
-            //Canny(skin_image, skin_image, lowThreshold,lowThreshold*ratio);
-            imshow(WinName2,skin_image);
+            image = RGB_image;
+        }
+        
+        
+        Point3_<float>* p = hsv_image.ptr<Point3_<float>>(10,10);
+        //cout << (int)p->x << " " << (int)p->y << endl;
+
+        //Draw hand boxes
+        if(calibration_frames_left < num_calibrating_frames && calibration_frames_right < num_calibrating_frames)
+        {
+            putText(RGB_image, "Press 'L' to Calibrate Left Stick and 'R' to Calibrate Right Stick", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 255), 1, CV_AA);
+            DrawShape(&RGB_image,left_box);
+            DrawShape(&RGB_image,right_box);
+        }
+        
+        else if (calibration_frames_left < num_calibrating_frames)
+        {
+            putText(RGB_image, "Press 'L' to Calibrate Left Stick", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 255), 1, CV_AA);
+            DrawShape(&RGB_image,left_box);
+            hist_threshold(&image, &bin_image_right, total_hist_right, percentageOfMax);
+            erode(bin_image_left, bin_image_left, erode_element);
+            dilate(bin_image_left, bin_image_left, dilate_element);
+            
+            imshow(WinName3,bin_image_right);
             
         }
-        imshow(WinName,image);
+        else if (calibration_frames_right < num_calibrating_frames)
+        {
+            putText(RGB_image, "Press 'R' to Calibrate Right Stick", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 255), 1, CV_AA);
+            DrawShape(&RGB_image,right_box);
+            hist_threshold(&image, &bin_image_left, total_hist_left, percentageOfMax);
+            //erode(bin_image_left, bin_image_left, erode_element);
+            //ldilate(bin_image_left, bin_image_left, dilate_element);
+            
+            imshow(WinName2,bin_image_left);
+        }
+        else
+        {
+            putText(RGB_image, "Press Space Bar to Re-Calibrate", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 255), 1, CV_AA);
+            hist_threshold(&image, &bin_image_left, total_hist_left, percentageOfMax);
+            hist_threshold(&image, &bin_image_right, total_hist_right, percentageOfMax);
+            erode(bin_image_left, bin_image_left, erode_element);
+            dilate(bin_image_left, bin_image_left, dilate_element);
+            blur(bin_image_left,bin_image_left,Point(15,15));
+            
+            erode(bin_image_right, bin_image_right, erode_element);
+            dilate(bin_image_right, bin_image_right, dilate_element);
+            blur(bin_image_right,bin_image_right,Point(15,15));
+            
+            minMaxLoc(bin_image_left, 0, 0,0, &maxloc_left);
+            minMaxLoc(bin_image_right, 0, 0,0, &maxloc_right);
+            
+            imshow(WinName2,bin_image_left);
+            imshow(WinName3,bin_image_right);
+        }
         
-        int key = waitKey(10);
+        if (key == 'l' && calibration_frames_left < num_calibrating_frames)
+        {
+            calibration_frames_left++;
+            total_hist_left = Add_To_Hist(hsv_left,total_hist_left);
+        }
+        else if (key == 'r' && calibration_frames_right < num_calibrating_frames)
+        {
+            calibration_frames_right++;
+            total_hist_right = Add_To_Hist(hsv_right,total_hist_right);
+        }
+        
+        Scalar low_thresh(0,100,0);
+        Scalar high_tresh(255, 255, 255);
+        inRange(hsv_image, low_thresh, high_tresh, skin);
+        
+        if (maxloc_left.x != 0 || maxloc_left.y != 0)
+        {
+        circle(RGB_image,maxloc_left,15,Scalar(0, 255, 0), 2, 8, 0);
+        }
+        if (maxloc_right.x != 0 || maxloc_right.y != 0)
+        {
+            circle(RGB_image,maxloc_right,15,Scalar(0, 255, 0), 2, 8, 0);
+        }
+        imshow(WinName,RGB_image);
+        //imshow(WinName4,skin);
+        key = waitKey(30);
         
         if (key == ' '){
-            left_hand_frames = 0;
+            calibration_frames_left = 0;
+            calibration_frames_right = 0;
         }
-        else if (key > 0)
+        
+        else if (key == 'q')
         {
             break;
         }

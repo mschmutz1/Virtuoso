@@ -12,7 +12,19 @@
 using namespace cv;
 using namespace std;
 
-int maxB, maxG;
+extern int xmax;
+extern int ymax;
+extern int values_per_bins;
+extern int channels[2];
+
+MatND Add_To_Hist(Mat frame,MatND hist)
+{
+    MatND curr_hist, total_hist;
+    curr_hist = CreateHistHS(&frame);
+    total_hist = hist + curr_hist;
+    return total_hist;
+}
+
 void hist_threshold(Mat* src_image, Mat* dest_image, MatND hist,double percentageOfMax)
 {
     Mat tmp_image;
@@ -31,6 +43,7 @@ void hist_threshold(Mat* src_image, Mat* dest_image, MatND hist,double percentag
             int B_index = B/4;
             int G_index = G/4;
             
+
             //cout << B << " " << G << " " << endl;
             
             {
@@ -55,17 +68,15 @@ MatND CreateHistHS(Mat* imag)
 {
     // Quantize the hue to 30 levels
     // and the saturation to 32 levels
-    int Bbins = 45, Gbins = 64;
+    int Bbins = xmax/values_per_bins, Gbins = ymax/values_per_bins;
     int histSize[] = {Bbins, Gbins};
     // hue varies from 0 to 179, see cvtColor
-    float Branges[] = { 0, 179 };
+    float Branges[] = { 0, (float)xmax};
     // saturation varies from 0 (black-gray-white) to
     // 255 (pure spectrum color)
-    float Granges[] = { 0, 255 };
+    float Granges[] = { 0, (float)ymax};
     const float* ranges[] = { Branges, Granges };
     MatND hist;
-    // we compute the histogram from the 0-th and 1-st channels
-    int channels[] = {0, 1};
     
     calcHist(imag, 1, channels, Mat(), // do not use mask
              hist, 2, histSize, ranges,
