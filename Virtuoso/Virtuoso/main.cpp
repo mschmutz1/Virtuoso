@@ -22,6 +22,12 @@ int values_per_bins = 4;
 int channels[2] = {0,1};
 bool HSV = true;
 int num_calibrating_frames = 10;
+int frames_tracked = 4;
+Point* previous_right;
+Point* previous_left;
+int count = 0;
+
+Point Calc_Velocity(Point location,int frame_num, int stick);
 
 int main(){
     //set up display window
@@ -49,6 +55,12 @@ int main(){
     double percentageOfMax = .7;
     Point maxloc_left;
     Point maxloc_right;
+    Point velocity_right;
+    Point velocity_left;
+    previous_right = new Point[frames_tracked];
+    previous_left = new Point[frames_tracked];
+    int count_left = 0;
+    int count_right = 0;
     
     //set camera resolution
     cap.set(CV_CAP_PROP_FRAME_WIDTH,480);
@@ -175,8 +187,8 @@ int main(){
             dilate(bin_image_right, bin_image_right, dilate_element);
             blur(bin_image_right,bin_image_right,Point(15,15));
             
-            minMaxLoc(bin_image_left, 0, 0,0, &maxloc_left);
-            minMaxLoc(bin_image_right, 0, 0,0, &maxloc_right);
+            minMaxLoc(bin_image_left, 0, 0, 0, &maxloc_left);
+            minMaxLoc(bin_image_right, 0, 0, 0, &maxloc_right);
             
             imshow(WinName2,bin_image_left);
             imshow(WinName3,bin_image_right);
@@ -199,12 +211,28 @@ int main(){
         
         if (maxloc_left.x != 0 || maxloc_left.y != 0)
         {
-        circle(RGB_image,maxloc_left,15,Scalar(0, 255, 0), 2, 8, 0);
+            count_left++;
+            circle(RGB_image,maxloc_left,15,Scalar(0, 255, 0), -1, 8, 0);
+            velocity_left = Calc_Velocity(maxloc_left,count_left,0);
+            if (velocity_left.y < -10)
+            {
+            cout << velocity_left.x << " " << velocity_left.y << endl;
+            }
+
+        }
+        else{
+            count_left = 0;
         }
         if (maxloc_right.x != 0 || maxloc_right.y != 0)
         {
-            circle(RGB_image,maxloc_right,15,Scalar(0, 255, 0), 2, 8, 0);
+            count_right++;
+            circle(RGB_image,maxloc_right,15,Scalar(0, 255, 0), -1, 8, 0);
+            velocity_right = Calc_Velocity(maxloc_right,count_right,1);
         }
+        else{
+            count_right = 0;
+        }
+         
         imshow(WinName,RGB_image);
         //imshow(WinName4,skin);
         key = waitKey(30);
@@ -227,6 +255,47 @@ int main(){
     return 0;
 }
 
+
+/*
+if (maxloc_left.x != 0 || maxloc_left.y != 0)
+{
+    
+    previous_left[count_left%4] = maxloc_left;
+    count_left++;
+    Point total = Point(0,0);
+    for (int i = 0; i<smoothing_value; i++){
+        total.x += previous_left[i].x;
+        total.y += previous_left[i].y;
+    }
+    total.x = total.x/smoothing_value;
+    total.y = total.y/smoothing_value;
+    
+    circle(RGB_image,total,15,Scalar(0, 255, 0), -1, 8, 0);
+}
+else{
+    previous_left[count_left%4] = previous_left[(count_left-1)%4];
+    count_left++;
+}
+if (maxloc_right.x != 0 || maxloc_right.y != 0)
+{
+    previous_right[count_right%4] = maxloc_right;
+    count_right++;
+    Point total = Point(0,0);
+    for (int i = 0; i<smoothing_value; i++){
+        total.x += previous_right[i].x;
+        total.y += previous_right[i].y;
+    }
+    total.x = total.x/smoothing_value;
+    total.y = total.y/smoothing_value;
+    
+    circle(RGB_image,total,15,Scalar(0, 255, 0), -1, 8, 0);
+}
+else{
+    previous_right[count_right%4] = previous_right[(count_right-1)%4];
+    count_right++;
+}
+
+*/
 /*
  int H_total = 0;
  int S_total = 0;
