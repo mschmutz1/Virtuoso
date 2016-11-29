@@ -26,6 +26,7 @@ int frames_tracked = 4;
 Point* previous_right;
 Point* previous_left;
 int count = 0;
+int min_velocity = -10;
 
 Point Calc_Velocity(Point location,int frame_num, int stick);
 

@@ -14,6 +14,7 @@ using namespace cv;
 extern int frames_tracked;
 extern Point* previous_right;
 extern Point* previous_left;
+extern int min_velocity;
 
 Point Calc_Velocity(Point location,int frame_num, int stick)
 {
@@ -47,4 +48,9 @@ Point Calc_Velocity(Point location,int frame_num, int stick)
     }
     
     return Point(0,0);
+}
+
+bool PlaySound(Point velocity, Point location)
+{
+    return false;
 }
