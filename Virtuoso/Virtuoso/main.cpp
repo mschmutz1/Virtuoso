@@ -68,7 +68,7 @@ int main(){
     cap.set(CV_CAP_PROP_FRAME_HEIGHT,360);
     
      //load classifier to look for faces
-    const string face_cascade_name = "/Users/mathias/Desktop/EECS332/Instruments/opencv-2.4.13/data/haarcascades/haarcascade_hand.xml";
+    const string face_cascade_name = "/Users/lindsay/Desktop/eecs 332/Virtuoso/opencv-2.4.13/data/haarcascades/haarcascade_hand.xml";
     
     face_cascade.load(face_cascade_name);
     
@@ -149,35 +149,37 @@ int main(){
         //Draw hand boxes
         if(calibration_frames_left < num_calibrating_frames && calibration_frames_right < num_calibrating_frames)
         {
-            putText(RGB_image, "Press 'L' to Calibrate Left Stick and 'R' to Calibrate Right Stick", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 255), 1, CV_AA);
+            putText(RGB_image, "Press 'L' to Calibrate Left Stick", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 0), 1, CV_AA);
+            putText(RGB_image, "Press 'R' to Calibrate Right Stick", cvPoint(30, 60), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 0), 1, CV_AA);
             DrawShape(&RGB_image,left_box);
             DrawShape(&RGB_image,right_box);
         }
         
         else if (calibration_frames_left < num_calibrating_frames)
         {
-            putText(RGB_image, "Press 'L' to Calibrate Left Stick", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 255), 1, CV_AA);
+            putText(RGB_image, "Press 'L' to Calibrate Left Stick", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 0), 1, CV_AA);
             DrawShape(&RGB_image,left_box);
             hist_threshold(&image, &bin_image_right, total_hist_right, percentageOfMax);
-            erode(bin_image_left, bin_image_left, erode_element);
-            dilate(bin_image_left, bin_image_left, dilate_element);
-            
-            imshow(WinName3,bin_image_right);
+            erode(bin_image_right, bin_image_right, erode_element);
+            dilate(bin_image_right, bin_image_right, dilate_element);
+            blur(bin_image_right,bin_image_right,Point(15,15));
+            minMaxLoc(bin_image_right, 0, 0, 0, &maxloc_right);
             
         }
         else if (calibration_frames_right < num_calibrating_frames)
         {
-            putText(RGB_image, "Press 'R' to Calibrate Right Stick", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 255), 1, CV_AA);
+            putText(RGB_image, "Press 'R' to Calibrate Right Stick", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 0), 1, CV_AA);
             DrawShape(&RGB_image,right_box);
             hist_threshold(&image, &bin_image_left, total_hist_left, percentageOfMax);
-            //erode(bin_image_left, bin_image_left, erode_element);
-            //ldilate(bin_image_left, bin_image_left, dilate_element);
-            
+            erode(bin_image_left, bin_image_left, erode_element);
+            dilate(bin_image_left, bin_image_left, dilate_element);
+            blur(bin_image_left,bin_image_left,Point(15,15));
+            minMaxLoc(bin_image_left, 0, 0, 0, &maxloc_left);
             imshow(WinName2,bin_image_left);
         }
         else
         {
-            putText(RGB_image, "Press Space Bar to Re-Calibrate", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 255), 1, CV_AA);
+            putText(RGB_image, "Press Space Bar to Re-Calibrate", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 0), 1, CV_AA);
             hist_threshold(&image, &bin_image_left, total_hist_left, percentageOfMax);
             hist_threshold(&image, &bin_image_right, total_hist_right, percentageOfMax);
             erode(bin_image_left, bin_image_left, erode_element);
@@ -215,9 +217,13 @@ int main(){
             count_left++;
             circle(RGB_image,maxloc_left,15,Scalar(0, 255, 0), -1, 8, 0);
             velocity_left = Calc_Velocity(maxloc_left,count_left,0);
-            if (velocity_left.y < -10)
+            if ((velocity_left.y < -10) && (maxloc_left.y < 260) && (maxloc_left.x < 240))
             {
-            cout << velocity_left.x << " " << velocity_left.y << endl;
+                putText(RGB_image, "Left instrument hit", cvPoint(30, 330), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 255, 0), 1, CV_AA);
+            }
+            else if ((velocity_left.y < -10) && (maxloc_left.y < 260) && (maxloc_right.x > 240))
+            {
+                putText(RGB_image, "Right instrument hit", cvPoint(30, 330), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 255, 0), 1, CV_AA);
             }
 
         }
@@ -229,6 +235,14 @@ int main(){
             count_right++;
             circle(RGB_image,maxloc_right,15,Scalar(0, 255, 0), -1, 8, 0);
             velocity_right = Calc_Velocity(maxloc_right,count_right,1);
+            if ((velocity_right.y < -10) && (maxloc_right.y < 260) && (maxloc_right.x > 240))
+            {
+                putText(RGB_image, "Right instrument hit", cvPoint(30, 330), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 255, 0), 1, CV_AA);
+            }
+            else if ((velocity_right.y < -10) && (maxloc_right.y < 260) && (maxloc_right.x < 240))
+            {
+                putText(RGB_image, "Left instrument hit", cvPoint(30, 330), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 255, 0), 1, CV_AA);
+            }
         }
         else{
             count_right = 0;

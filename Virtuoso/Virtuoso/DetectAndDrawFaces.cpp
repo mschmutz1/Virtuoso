@@ -73,6 +73,6 @@ void DrawShape(Mat* frame,Rect object)
     width = object.width;
     height = object.height;
     radius = width/2 * sqrt(2);
-    rectangle(*frame, Point(x,y), Point(x+width,y+height), Scalar(0, 255, 0), 2, 8, 0);
+    //rectangle(*frame, Point(x,y), Point(x+width,y+height), Scalar(0, 255, 0), 2, 8, 0);
     circle(*frame,Point(x+width/2,y+height/2),radius,Scalar(0, 255, 0), 2, 8, 0);
 }

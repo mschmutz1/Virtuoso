@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		98FAE39A1DEDE42C006A4DB2 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98FAE3991DEDE42B006A4DB2 /* AVFoundation.framework */; };
 		C73A56E11DBF1813002EDBA7 /* DetectAndDrawFaces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C73A56DF1DBF1813002EDBA7 /* DetectAndDrawFaces.cpp */; };
 		C75327EA1DB1AB370021FC4E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C75327E91DB1AB370021FC4E /* main.cpp */; };
 		C75327F11DB1AE590021FC4E /* libopencv_core.2.4.13.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C75327F01DB1AE590021FC4E /* libopencv_core.2.4.13.dylib */; };
@@ -30,6 +31,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		98FAE3991DEDE42B006A4DB2 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		98FAE39B1DEDE46F006A4DB2 /* 99751__menegass__bongo1.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = 99751__menegass__bongo1.wav; path = ../../../../../../WebstormProjects/untitled7/src/99751__menegass__bongo1.wav; sourceTree = "<group>"; };
+		98FAE39C1DEDE46F006A4DB2 /* 99752__menegass__bongo2.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = 99752__menegass__bongo2.wav; path = ../../../../../../WebstormProjects/untitled7/src/99752__menegass__bongo2.wav; sourceTree = "<group>"; };
 		C7002AC21DCD07A20036B12C /* global.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = global.h; sourceTree = "<group>"; };
 		C73A56DF1DBF1813002EDBA7 /* DetectAndDrawFaces.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DetectAndDrawFaces.cpp; sourceTree = "<group>"; };
 		C73A56E01DBF1813002EDBA7 /* DetectAndDrawFaces.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DetectAndDrawFaces.hpp; sourceTree = "<group>"; };
@@ -50,6 +54,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				98FAE39A1DEDE42C006A4DB2 /* AVFoundation.framework in Frameworks */,
 				C75327F31DB1AE7A0021FC4E /* libopencv_objdetect.2.4.13.dylib in Frameworks */,
 				C75327F51DB1AE940021FC4E /* libopencv_imgproc.2.4.13.dylib in Frameworks */,
 				C75327F71DB1B06A0021FC4E /* libopencv_highgui.2.4.13.dylib in Frameworks */,
@@ -60,6 +65,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		98FAE3981DEDE42B006A4DB2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				98FAE3991DEDE42B006A4DB2 /* AVFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		C75327DD1DB1AB370021FC4E = {
 			isa = PBXGroup;
 			children = (
@@ -69,6 +82,7 @@
 				C75327F01DB1AE590021FC4E /* libopencv_core.2.4.13.dylib */,
 				C75327E81DB1AB370021FC4E /* Virtuoso */,
 				C75327E71DB1AB370021FC4E /* Products */,
+				98FAE3981DEDE42B006A4DB2 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -83,6 +97,8 @@
 		C75327E81DB1AB370021FC4E /* Virtuoso */ = {
 			isa = PBXGroup;
 			children = (
+				98FAE39C1DEDE46F006A4DB2 /* 99752__menegass__bongo2.wav */,
+				98FAE39B1DEDE46F006A4DB2 /* 99751__menegass__bongo1.wav */,
 				C75327E91DB1AB370021FC4E /* main.cpp */,
 				C77133A31DED4B300007BA78 /* Object_tracking.cpp */,
 				C77133A41DED4B300007BA78 /* Object_tracking.hpp */,
@@ -121,7 +137,7 @@
 		C75327DE1DB1AB370021FC4E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = self.edu;
 				TargetAttributes = {
 					C75327E51DB1AB370021FC4E = {
@@ -174,8 +190,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -185,6 +203,7 @@
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -197,6 +216,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = "/Users/lindsay/Desktop/eecs\\332/FinalProject/Virtuoso/opencv-2.4.13/build/lib";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -217,8 +237,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -226,7 +248,9 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				"FRAMEWORK_SEARCH_PATHS[arch=*]" = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -234,6 +258,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = "/Users/lindsay/Desktop/eecs\\332/FinalProject/Virtuoso/opencv-2.4.13/build/lib";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
@@ -246,7 +271,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = /usr/local/lib;
 				HEADER_SEARCH_PATHS = /usr/local/include;
-				LIBRARY_SEARCH_PATHS = "\"/Users/mathias/Desktop/EECS332/Instruments/opencv-2.4.13/build/lib\"";
+				LIBRARY_SEARCH_PATHS = "\"/Users/lindsay/Desktop/eecs 332/FinalProject/Virtuoso/opencv-2.4.13/build/lib\"";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -257,7 +282,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = /usr/local/lib;
 				HEADER_SEARCH_PATHS = /usr/local/include;
-				LIBRARY_SEARCH_PATHS = "\"/Users/mathias/Desktop/EECS332/Instruments/opencv-2.4.13/build/lib\"";
+				LIBRARY_SEARCH_PATHS = "\"/Users/lindsay/Desktop/eecs 332/FinalProject/Virtuoso/opencv-2.4.13/build/lib\"";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

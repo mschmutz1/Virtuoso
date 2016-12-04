@@ -82,7 +82,7 @@ MatND CreateHistHS(Mat* imag)
              hist, 2, histSize, ranges,
              true, // the histogram is uniform
              false );
-    
+    /*
     //Rest is for debugging
     double maxVal=0;
     minMaxLoc(hist, 0, &maxVal, 0, 0);
@@ -103,7 +103,7 @@ MatND CreateHistHS(Mat* imag)
                maxG = G;
                cout << "HV: " << maxB << " " << maxG << endl;
             }
-             */
+            
             
             int intensity = cvRound(binVal*255/maxVal);
             rectangle( histImg, Point(B*scale, G*scale),
@@ -111,14 +111,14 @@ MatND CreateHistHS(Mat* imag)
                       Scalar::all(intensity),
                       CV_FILLED );
         }
-    /*
+
     namedWindow( "Cropped Face", 1 );
     imshow( "Cropped Face", *imag);
-    */
+    
     
     namedWindow( "H-S Histogram", 1 );
     imshow( "H-S Histogram", histImg);
     //waitKey();
-    
+    */
     return hist;
 };
