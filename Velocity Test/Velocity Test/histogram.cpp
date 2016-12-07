@@ -81,8 +81,6 @@ MatND CreateHistHS(Mat* imag)
              hist, 2, histSize, ranges,
              true, // the histogram is uniform
              false );
-    
-    //normalize( hist, hist, 0, 255, NORM_MINMAX, -1, Mat() );
     /*
     //Rest is for debugging
     double maxVal=0;

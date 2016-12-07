@@ -10,6 +10,7 @@
 #include "DetectAndDrawFaces.hpp"
 #include "histogram.hpp"
 #include <stdlib.h> 
+#include "other.hpp"
 
 using namespace cv;
 using namespace std;
@@ -27,10 +28,16 @@ Point* previous_right;
 Point* previous_left;
 int count = 0;
 int min_velocity = -10;
+double percentageOfMax = .9;
+Mat erode_element, dilate_element;
+
 
 Point Calc_Velocity(Point location,int frame_num, int stick);
+int Calc_Radius(Mat bin_image, Point Max);
+
 
 int main(){
+
     //set up display window
     const string WinName ="Virtuoso";
     const string WinName2 = "Left Stick";
@@ -38,70 +45,49 @@ int main(){
     const string WinName4 = "In range";
     
     //set up timer for measuring frame rate
-    clock_t start;
-    double duration;
-    start = clock();
-
-    //set up video
-    VideoCapture cap(0);
+    clock_t start,start_frame;
+    double duration, frame_per_sec;
+    
+    //initiate Mat objects
     Mat RGB_image, hsv_image, bin_image_right, bin_image_left,hsv_left,hsv_right,left_stick,right_stick,image, skin;
-    MatND total_hist_right,total_hist_left;
+    MatND total_hist_right,total_hist_left, back_project;
     total_hist_right = Mat::zeros(xmax/values_per_bins, ymax/values_per_bins, CV_32FC1);
     total_hist_left = Mat::zeros(xmax/values_per_bins, ymax/values_per_bins, CV_32FC1);
+    int calibration_frames_left= 0;
+    int calibration_frames_right = 0;
     
-    //For testing
-    Mat hand_frames[5];
     
-    MatND curr_hist;
-    double percentageOfMax = .7;
+    //parameters for image processing that can be changed
+    Mat erode_element = getStructuringElement(MORPH_RECT, Size(2, 2));
+    Mat dilate_element = getStructuringElement(MORPH_RECT, Size(11, 11));
+    
+    //For ball tracking
     Point maxloc_left;
     Point maxloc_right;
     Point velocity_right;
     Point velocity_left;
     previous_right = new Point[frames_tracked];
     previous_left = new Point[frames_tracked];
+    vector<Vec3f> circles_right;
+    vector<Vec3f> circles_left;
     int count_left = 0;
     int count_right = 0;
+    int radius_right;
+    int radius_left;
+    int key = -1;
     
-    //set camera resolution
-    cap.set(CV_CAP_PROP_FRAME_WIDTH,480);
-    cap.set(CV_CAP_PROP_FRAME_HEIGHT,360);
     
-     //load classifier to look for faces
-    const string face_cascade_name = "/Users/lindsay/Desktop/eecs 332/Virtuoso/opencv-2.4.13/data/haarcascades/haarcascade_hand.xml";
-    
-    face_cascade.load(face_cascade_name);
-    
-    Mat erode_element = getStructuringElement(MORPH_RECT, Size(2, 2));
-    Mat dilate_element = getStructuringElement(MORPH_RECT, Size(10, 10));
-    int lowThreshold = 10;
-    int ratio = 3;
-    int random_points = 40;
-    int key = 0;
-    
-    if (!cap.isOpened())
-    {
-        cout << "Cam is not opened" << endl;
-    }
-        
+    //For frame rate
     int frames_processed = 0;
-    int calibration_frames_left= 0;
-    int calibration_frames_right = 0;
-    
-    
+    double pix_per_sec;
+
     //Create Windows
     namedWindow(WinName,1);
     namedWindow(WinName2,1);
     namedWindow(WinName3,1);
     namedWindow(WinName4,1);
     
-    vector<Rect> left_hand;
-    vector<Rect> right_hand;
-    
-    bool frame_read;
-    vector<vector<Point>> contours;
-    vector<Vec4i> hierarchy;
-    
+    //Set up boxes for calibration
     const int BOX_WIDTH = 45;
     const int BOX_HEIGHT = 45;
     const int BOX_Y = 240;
@@ -110,10 +96,25 @@ int main(){
     Rect left_box(BOX_X - BOX_WIDTH/2,BOX_Y - BOX_HEIGHT/2,BOX_WIDTH,BOX_HEIGHT);
     Rect right_box((480 - BOX_X) - BOX_WIDTH/2,BOX_Y - BOX_HEIGHT/2,BOX_WIDTH,BOX_HEIGHT);
     
+    //set up video and set camera resolution
+    VideoCapture cap(0);
+    cap.set(CV_CAP_PROP_FRAME_WIDTH,480);
+    cap.set(CV_CAP_PROP_FRAME_HEIGHT,360);
+    bool frame_read;
+    
+    if (!cap.isOpened())
+    {
+        cout << "Cam is not opened" << endl;
+    }
+    
     cout << "Started frame collection" << endl;
     //main loop, processes each frame
-    while(true){
-        
+    
+    start = clock();
+    
+    while(true)
+    {
+        start_frame = clock();
         frame_read = cap.read(RGB_image); //assigns mat image to raw webcam footage
         
         if (!frame_read){
@@ -122,17 +123,18 @@ int main(){
         }
         
         flip(RGB_image,RGB_image,1);
+        
+        //Zero binary images
         bin_image_right = Mat::zeros(360,480,CV_8UC1);
         bin_image_left = Mat::zeros(360,480,CV_8UC1);
+        
+        //Convery RGB to hsv colorspace
         cvtColor(RGB_image, hsv_image, CV_BGR2HSV);
-       
         hsv_left = hsv_image(left_box);
         hsv_right =  hsv_image(right_box);
-        
-        //blur(hsv_image,hsv_image,Point(5,5));
         hsv_image.convertTo(hsv_image, CV_32FC1);
         
-        
+        //Use different colorspaces
         if (HSV == true)
         {
             image = hsv_image;
@@ -142,56 +144,57 @@ int main(){
             image = RGB_image;
         }
         
-        
-        Point3_<float>* p = hsv_image.ptr<Point3_<float>>(10,10);
-        //cout << (int)p->x << " " << (int)p->y << endl;
 
         //Draw hand boxes
         if(calibration_frames_left < num_calibrating_frames && calibration_frames_right < num_calibrating_frames)
         {
-            putText(RGB_image, "Press 'L' to Calibrate Left Stick", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 0), 1, CV_AA);
-            putText(RGB_image, "Press 'R' to Calibrate Right Stick", cvPoint(30, 60), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 0), 1, CV_AA);
-            DrawShape(&RGB_image,left_box);
-            DrawShape(&RGB_image,right_box);
+            Calibration_Left_Prompt(&RGB_image, left_box);
+            Calibration_Right_Prompt(&RGB_image, right_box);
         }
         
         else if (calibration_frames_left < num_calibrating_frames)
         {
-            putText(RGB_image, "Press 'L' to Calibrate Left Stick", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 0), 1, CV_AA);
-            DrawShape(&RGB_image,left_box);
+            Calibration_Left_Prompt(&RGB_image, left_box);
             hist_threshold(&image, &bin_image_right, total_hist_right, percentageOfMax);
+            //calcBackProject( &hue, 1, 0, hist, backproj, &ranges, 1, true );
             erode(bin_image_right, bin_image_right, erode_element);
             dilate(bin_image_right, bin_image_right, dilate_element);
             blur(bin_image_right,bin_image_right,Point(15,15));
             minMaxLoc(bin_image_right, 0, 0, 0, &maxloc_right);
             
+            HoughCircles(bin_image_right, circles_right, CV_HOUGH_GRADIENT, 2,1);
+            cout << circles_right.size() << endl;
+        
+            imshow(WinName3,bin_image_right);
+            
         }
         else if (calibration_frames_right < num_calibrating_frames)
         {
-            putText(RGB_image, "Press 'R' to Calibrate Right Stick", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 0), 1, CV_AA);
-            DrawShape(&RGB_image,right_box);
-            hist_threshold(&image, &bin_image_left, total_hist_left, percentageOfMax);
-            erode(bin_image_left, bin_image_left, erode_element);
-            dilate(bin_image_left, bin_image_left, dilate_element);
-            blur(bin_image_left,bin_image_left,Point(15,15));
+            Calibration_Right_Prompt(&RGB_image, right_box);
+            Find_And_Process(&image,&bin_image_left,total_hist_left);
             minMaxLoc(bin_image_left, 0, 0, 0, &maxloc_left);
             imshow(WinName2,bin_image_left);
         }
         else
         {
-            putText(RGB_image, "Press Space Bar to Re-Calibrate", cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 0, 0), 1, CV_AA);
-            hist_threshold(&image, &bin_image_left, total_hist_left, percentageOfMax);
+            Find_And_Process(&image,&bin_image_right,total_hist_right);
             hist_threshold(&image, &bin_image_right, total_hist_right, percentageOfMax);
-            erode(bin_image_left, bin_image_left, erode_element);
-            dilate(bin_image_left, bin_image_left, dilate_element);
-            blur(bin_image_left,bin_image_left,Point(15,15));
             
             erode(bin_image_right, bin_image_right, erode_element);
             dilate(bin_image_right, bin_image_right, dilate_element);
             blur(bin_image_right,bin_image_right,Point(15,15));
+            minMaxLoc(bin_image_right, 0, 0, 0, &maxloc_right);
             
+            Re_Calibrate_Prompt(&RGB_image);
             minMaxLoc(bin_image_left, 0, 0, 0, &maxloc_left);
             minMaxLoc(bin_image_right, 0, 0, 0, &maxloc_right);
+            
+            if (circles_right.size() == 1){
+                cout << "Circle found" << endl;
+                maxloc_right.x = circles_right[0][0];
+                maxloc_right.y = circles_right[0][1];
+                circle(RGB_image,maxloc_left,circles_right[0][2],Scalar(0, 255, 0), -1,8, 0);
+            }
             
             imshow(WinName2,bin_image_left);
             imshow(WinName3,bin_image_right);
@@ -215,8 +218,11 @@ int main(){
         if (maxloc_left.x != 0 || maxloc_left.y != 0)
         {
             count_left++;
-            circle(RGB_image,maxloc_left,15,Scalar(0, 255, 0), -1, 8, 0);
+        
+            //radius_left = Calc_Radius(bin_image_left,maxloc_left);
+            circle(RGB_image,maxloc_left,15,Scalar(0, 255, 0), -1,8, 0);
             velocity_left = Calc_Velocity(maxloc_left,count_left,0);
+            
             if ((velocity_left.y < -10) && (maxloc_left.y < 260) && (maxloc_left.x < 240))
             {
                 putText(RGB_image, "Left instrument hit", cvPoint(30, 330), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 255, 0), 1, CV_AA);
@@ -225,6 +231,7 @@ int main(){
             {
                 putText(RGB_image, "Right instrument hit", cvPoint(30, 330), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 255, 0), 1, CV_AA);
             }
+            
 
         }
         else{
@@ -233,7 +240,9 @@ int main(){
         if (maxloc_right.x != 0 || maxloc_right.y != 0)
         {
             count_right++;
-            circle(RGB_image,maxloc_right,15,Scalar(0, 255, 0), -1, 8, 0);
+            /*
+            radius_right = Calc_Radius(bin_image_right,maxloc_right);
+            circle(RGB_image,maxloc_right,radius_right,Scalar(0, 255, 0), -1, 8, 0);
             velocity_right = Calc_Velocity(maxloc_right,count_right,1);
             if ((velocity_right.y < -10) && (maxloc_right.y < 260) && (maxloc_right.x > 240))
             {
@@ -243,6 +252,7 @@ int main(){
             {
                 putText(RGB_image, "Left instrument hit", cvPoint(30, 330), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 255, 0), 1, CV_AA);
             }
+             */
         }
         else{
             count_right = 0;
@@ -262,6 +272,7 @@ int main(){
             break;
         }
         
+        frame_per_sec = ((double) CLOCKS_PER_SEC)/(clock() - start_frame);
         frames_processed++;
     }
     
@@ -269,7 +280,29 @@ int main(){
     cout << "frames per second " << frames_processed/duration << endl;
     return 0;
 }
-
+int Calc_Radius(Mat bin_image, Point max)
+{
+    double tmp_radius, max_radius = 0;
+    double x_dist,y_dist;
+    int val;
+    for (int i=0; i<bin_image.cols; i++){
+        for (int j=0; j<bin_image.rows; j++){
+            if (bin_image.at<uchar>(j,i) > 100)
+            {
+                val = bin_image.at<uchar>(j,i);
+                x_dist = abs(max.x - i);
+                y_dist = abs(max.y - j);
+                tmp_radius = sqrt(x_dist*x_dist + y_dist*y_dist);
+                if (tmp_radius > max_radius)
+                {
+                    max_radius = tmp_radius;
+                }
+            }
+        }
+    }
+    cout << max_radius << endl;
+    return (int)max_radius;
+}
 
 /*
 if (maxloc_left.x != 0 || maxloc_left.y != 0)
